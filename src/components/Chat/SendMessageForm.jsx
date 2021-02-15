@@ -1,42 +1,45 @@
 import React, { useEffect, useRef, useContext } from 'react';
-import axios from 'axios';
-import cn from 'classnames';
-import { useFormik } from 'formik';
-import { Form, FormControl, FormGroup } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
+import cn from 'classnames';
 
-import routes from '../routes';
-import UserContext from './UserContext';
+import { Form, FormGroup, FormControl } from 'react-bootstrap';
 
-const SendMessageForm = () => {
+import axios from 'axios';
+import { useFormik } from 'formik';
+
+import routes from '../../routes';
+import UserContext from '../UserContext';
+
+const MessageSendForm = () => {
   const nickname = useContext(UserContext);
-  const { currentChannelId } = useSelector((state) => state);
+  const { modalInfo, channelsInfo: { currentChannelId } } = useSelector((state) => state);
 
   const formik = useFormik({
     initialValues: { body: '' },
-    onSubmit: async (values, actions) => {
+    onSubmit: async (values, { resetForm, setErrors }) => {
       try {
         const url = routes.channelMessagesPath(currentChannelId);
-        const data = { attributes: { body: values.body, nickname } };
-        await axios.post(url, { data });
-        actions.resetForm();
+        const attributes = { body: values.body, nickname, channelId: currentChannelId };
+        await axios.post(url, { data: { attributes } });
+        resetForm();
       } catch (err) {
-        actions.setErrors({ body: err.message });
+        setErrors({ body: err.message });
       }
     },
   });
 
   const messageInput = useRef();
   useEffect(() => {
-    messageInput.current.focus();
-  });
+    if (!modalInfo.type) {
+      messageInput.current.focus();
+    }
+  }, [modalInfo.type, currentChannelId, formik.isSubmitting]);
 
   return (
-    <Form noValidate onSubmit={formik.handleSubmit}>
+    <form onSubmit={formik.handleSubmit}>
       <FormGroup className="m-0">
         <FormControl
           name="body"
-          id="message-input"
           className={cn({ 'is-invalid': formik.errors.body, 'is-loading': formik.isSubmitting })}
           disabled={formik.isSubmitting}
           onChange={formik.handleChange}
@@ -44,13 +47,16 @@ const SendMessageForm = () => {
           ref={messageInput}
         />
         {formik.isSubmitting && <span className="spinner-border spinner-border-sm [readonly]" />}
-        <Form.Control.Feedback type="invalid" className="d-block">
+        <Form.Control.Feedback
+          className="d-block"
+          type="invalid"
+        >
           {formik.errors.body}
           &nbsp;
         </Form.Control.Feedback>
       </FormGroup>
-    </Form>
+    </form>
   );
 };
 
-export default SendMessageForm;
+export default MessageSendForm;

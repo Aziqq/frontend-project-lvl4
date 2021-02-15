@@ -1,32 +1,28 @@
 import React from 'react';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
+import { useSelector } from 'react-redux';
+import cn from 'classnames';
 
-import MessagesBox from './MessagesBox';
-import SendMessageForm from './SendMessageForm';
-import ChannelsNav from './ChannelsNav';
+import { Row } from 'react-bootstrap';
 
-const App = ({ initState }) => {
-  const { channels, currentChannelId } = initState;
+import Chat from './Chat';
+import Sidebar from './Sidebar';
+import Navbar from './Navbar';
+import Modal from './Modal';
+
+const App = () => {
+  const isSidebarOpen = useSelector((state) => state.sidebarInfo.open);
 
   return (
-    <Row className="h-100 pb-3">
-      <Col xs={3} className="border-right">
-        <div className="d-flex mb-2">
-          <span>Channels</span>
-          <div className="btn btn-link p-0 ml-auto">+</div>
-        </div>
-        <ChannelsNav channels={channels} current={currentChannelId} />
-      </Col>
-      <Col className="h-100">
-        <div className="d-flex flex-column h-100">
-          <MessagesBox />
-          <div className="mt-auto">
-            <SendMessageForm />
-          </div>
-        </div>
-      </Col>
-    </Row>
+    <>
+      <Navbar />
+      <div className="container-lg h-100 overflow-hidden">
+        <Row className="h-100 pb-3">
+          <Sidebar className={cn('h-100 border-right col-12 col-sm-4 col-lg-3 d-sm-block', { 'd-none': !isSidebarOpen })} />
+          {!isSidebarOpen && <Chat className="h-100 col-12 col-sm-8 col-lg-9" />}
+        </Row>
+      </div>
+      <Modal />
+    </>
   );
 };
 
