@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useContext } from 'react';
 import { useSelector } from 'react-redux';
 import cn from 'classnames';
 
-import { Form, FormGroup, FormControl } from 'react-bootstrap';
+import {
+  Form, FormGroup, FormControl, Button,
+} from 'react-bootstrap';
 
 import axios from 'axios';
 import { useFormik } from 'formik';
@@ -37,24 +39,25 @@ const MessageSendForm = () => {
 
   return (
     <form onSubmit={formik.handleSubmit}>
-      <FormGroup className="m-0">
+      <FormGroup className="d-flex">
         <FormControl
           name="body"
-          className={cn({ 'is-invalid': formik.errors.body, 'is-loading': formik.isSubmitting })}
+          className={cn('mr-1', { 'is-invalid': formik.errors.body, 'is-loading': formik.isSubmitting })}
           disabled={formik.isSubmitting}
           onChange={formik.handleChange}
           value={formik.values.body}
           ref={messageInput}
         />
         {formik.isSubmitting && <span className="spinner-border spinner-border-sm [readonly]" />}
-        <Form.Control.Feedback
-          className="d-block"
-          type="invalid"
-        >
-          {formik.errors.body}
-          &nbsp;
-        </Form.Control.Feedback>
+        <Button type="submit">Send</Button>
       </FormGroup>
+      <Form.Control.Feedback
+        className="d-block"
+        type="invalid"
+      >
+        {formik.errors.body}
+        &nbsp;
+      </Form.Control.Feedback>
     </form>
   );
 };
